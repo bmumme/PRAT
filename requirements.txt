@@ -1,0 +1,5 @@
+pyfiglet
+pwnedapi
+pandas
+xlsxwriter
+tqdm
