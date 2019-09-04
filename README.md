@@ -1,2 +1,2 @@
-# P.R.A.T
+# P.R.A.T.
 Password Recovery Analysis Tool
