@@ -6,8 +6,8 @@
 #        T.ool
 #
 #   Author: Bradley Mumme
-#   Current Version: 1.2
-#   Version Date: 6/27/19
+#   Current Version: 1.3
+#   Version Date: 03/22/21
 #
 #   Example Usage:
 #   python3 prat.py -m 2 -i hashcatoutput.txt -s secretsdumpoutput.txt -o nameofworkbook.xlsx
@@ -82,9 +82,8 @@ time.sleep(stagger_time)
 print('The output will be stored in the following excel workbook located in the current directory:  ' + output + "\n")
 
 
-d2cols = ['User', 'Salt', 'HashType', 'PassHash', 'na1', 'na2', 'na3']
+d2cols = ['User', 'rid', 'HashType', 'PassHash', 'na1', 'na2', 'na3']
 df_2 = pd.read_csv(secretsDumpFile, sep=":|,", engine='python', error_bad_lines=False, names=d2cols, skipinitialspace=True)
-#df_2.columns = ['User', 'Salt', 'HashType', 'PassHash', 'na1', 'na2', 'na3']
 df_2 = df_2[pd.notnull(df_2['PassHash'])]
 df_2 = df_2[df_2.User.str.contains('\\\\')]
 
