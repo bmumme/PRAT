@@ -1,5 +1,6 @@
 # P.R.A.T.
 Password Recovery Analysis Tool
+
 Version 2.1 - Bradley Mumme - March 2021
 
 ### Overview:
