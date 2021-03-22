@@ -7,7 +7,7 @@
 #
 #   Author: Bradley Mumme
 #   Current Version: 2.0
-#   Version Date: 9/23/19
+#   Version Date: 03/22/21
 #
 #   Last Update: Added -a for active AD user correlation and additional password metrics
 #
@@ -42,7 +42,7 @@ custom_fig = Figlet(font='speed')
 print(custom_fig.renderText('P.R.A.T.'))
 print("  Title: P.assword R.ecovery A.nalysis T.ool")
 print("  Author: Bradley Mumme")
-print("  Version: 2.0 - September 2019")
+print("  Version: 2.0 - March 2021")
 print('')
 
 
@@ -87,10 +87,9 @@ time.sleep(stagger_time)
 print('The output will be stored in the following excel workbook located in the current directory:  ' + output + "\n")
 
 
-d2cols = ['User', 'Salt', 'HashType', 'PassHash', 'na1', 'na2', 'na3']
+d2cols = ['User', 'rid', 'HashType', 'PassHash', 'na1', 'na2', 'na3']
 d3cols = ['Username']
 df_2 = pd.read_csv(secretsDumpFile, sep=":|,", engine='python', error_bad_lines=False, names=d2cols, skipinitialspace=True)
-#df_2.columns = ['User', 'Salt', 'HashType', 'PassHash', 'na1', 'na2', 'na3']
 df_2 = df_2[pd.notnull(df_2['PassHash'])]
 df_2 = df_2[df_2.User.str.contains('\\\\')]
 allhashes = df_2['PassHash'].count()
