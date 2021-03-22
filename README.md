@@ -17,17 +17,14 @@ This script requires the two files as inputs
 - TXT file of the secretsdump.py output
 
 ### Requirements: 
-`python3.x`
-
-`pyfiglet`
-
-`pwnedapi`
-
-`pandas`
-
-`xlsxwriter`
-
-`tqdm`
+```
+python3.x 
+pyfiglet
+pwnedapi
+pandas
+xlsxwriter
+tqdm
+```
 
 
 ### Instructions: 
