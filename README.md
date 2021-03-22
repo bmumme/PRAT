@@ -2,7 +2,7 @@
 Password Recovery Analysis Tool
 
 ### Overview:
-Currently, PRAT is a script for a very specifi use-case - The analysis of "recovered" (cracked) passwords from an Active Directory Environment. This is useful for penetration testers looking for an automated and meaningful way to educate clients about the overall password hygene of their environment. As well as illustrate the impact of obtaining DA access during an assessment. Also, this tool can be used by any IT/Security professional who is looking for insights into the makeup of their organization's password strength. 
+Currently, PRAT is a script for a very specific use-case - The analysis of "recovered" (Some like referring to passwords as "recovered" rather than "cracked" so I leave "recover" in quotations as a subtle protest against this, its just cracked passwords) passwords from an Active Directory Environment. This is useful for penetration testers looking for an automated and meaningful way to educate clients about the overall password hygene of their environment. As well as illustrate the impact of obtaining DA access during an assessment. Also, this tool can be used by any IT/Security professional who is looking for insights into the makeup of their organization's password strength. 
 
 Utilizing DA credentials and secretsdump.py, remotely dump the domain password hashes. Next, leverage Hashcat to "recover" passwords. Take the Hashcat output and the dumped password hashes (secretsdump.py ouptut) and run PRAT.py. 
 
