@@ -157,7 +157,7 @@ if args.activeUsers:
     activesheet = workbook.add_worksheet('ActiveUsers')
     writer.sheets['ActiveUsers'] = activesheet
     df_3.to_excel(writer,sheet_name='ActiveUsers',index=False,encoding='utf8')
-    status = 'ACTIVE'
+    status = 'ACTIVE '
 else:
     status = ''
 
