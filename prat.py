@@ -6,8 +6,10 @@
 #        T.ool
 #
 #   Author: Bradley Mumme
-#   Current Version: 1.3
-#   Version Date: 03/22/21
+#   Current Version: 2.0
+#   Version Date: 9/23/19
+#
+#   Last Update: Added -a for active AD user correlation and additional password metrics
 #
 #   Example Usage:
 #   python3 prat.py -m 2 -i hashcatoutput.txt -s secretsdumpoutput.txt -o nameofworkbook.xlsx
@@ -40,7 +42,7 @@ custom_fig = Figlet(font='speed')
 print(custom_fig.renderText('P.R.A.T.'))
 print("  Title: P.assword R.ecovery A.nalysis T.ool")
 print("  Author: Bradley Mumme")
-print("  Version: 1.2 - June 2019")
+print("  Version: 2.0 - September 2019")
 print('')
 
 
@@ -49,14 +51,16 @@ parser = argparse.ArgumentParser()
 
 
 
-parser.add_argument('-m','--mode', choices=(1,2,3), type=int, action='store',
+parser.add_argument('-m','--mode', choices=(1,2,3), type=int,required=True, action='store',
 help='Choose the type of analysis \n Option 1: This mode will analyze password compliance based on if password contains a special character, a number, an upper and lower case letter, and is at least 8 characters Option 2: This mode is the custom mode. This will enable you to specify what types of requirements the password is required to have. Option 3: This options is useful for specifying how many requirments out of the four standard requirements the password must have. (e.g., three our of four requirements must be met and the password must be n characters long.)')
-parser.add_argument('-i','--inputfile', metavar='crackedPasswords', type=argparse.FileType('r'),
+parser.add_argument('-i','--inputfile', metavar='crackedPasswords', type=argparse.FileType('r'), required=True,
 help='Specify the location of the text file storing the recovered passwords. Format = hash:password.  A txt file containing the dump of the hashcat .pot file is the best choice.')
-parser.add_argument('-o', '--outputfile', metavar='out-file', action='store',
+parser.add_argument('-o', '--outputfile', metavar='out-file', action='store', required=True,
 help='Specify the name of the excel analysis workbook. NOTE: this does not accept directories. Please only put the name of the file as it will be saved in your current directory')
-parser.add_argument('-s', '--secretsdumpImport', metavar='secretsdump-import', type=argparse.FileType('r'),
+parser.add_argument('-s', '--secretsdumpImport', metavar='secretsdump-import', type=argparse.FileType('r'), required=True,
 help='The name of the txt file that is the output from the secretsdump.py script. This is used to correlate passwords to users. ')
+parser.add_argument('-a', '--activeUsers', metavar='active-users', type=argparse.FileType('r'),
+help='Specify the CSV containing active users to correlate password findings to only active users\nOnly include the SAM name (e.g., "bmumme")')
 #parser.add_argument('-o','--outputfile', metavar='out-file', type=argparse.FileType('wt'), help='Specify the location and name of the excel analysis workbook')
 
 args = parser.parse_args()
@@ -66,6 +70,7 @@ stagger_time = 1
 secretsDumpFile = args.secretsdumpImport
 passfile = args.inputfile
 output = args.outputfile
+activeFile = args.activeUsers
 
 #output file validation
 #adds '.xlsx' if necessary
@@ -74,7 +79,7 @@ if output[-5:] != '.xlsx':
 else:
     pass
 
-
+filler = "********************"
 #Begin Displaying information to user
 print("***** Initializing *****")
 print('')
@@ -82,11 +87,22 @@ time.sleep(stagger_time)
 print('The output will be stored in the following excel workbook located in the current directory:  ' + output + "\n")
 
 
-d2cols = ['User', 'rid', 'HashType', 'PassHash', 'na1', 'na2', 'na3']
+d2cols = ['User', 'Salt', 'HashType', 'PassHash', 'na1', 'na2', 'na3']
+d3cols = ['Username']
 df_2 = pd.read_csv(secretsDumpFile, sep=":|,", engine='python', error_bad_lines=False, names=d2cols, skipinitialspace=True)
+#df_2.columns = ['User', 'Salt', 'HashType', 'PassHash', 'na1', 'na2', 'na3']
 df_2 = df_2[pd.notnull(df_2['PassHash'])]
 df_2 = df_2[df_2.User.str.contains('\\\\')]
+allhashes = df_2['PassHash'].count()
 
+#active user dataframe
+if args.activeUsers:
+    print(filler + "\nFindings will only show Active Users\n" + filler)
+    activeFile = args.activeUsers
+    df_3 = pd.read_csv(activeFile, sep=":|,", engine='python', error_bad_lines=False, names=d3cols, skipinitialspace=True)
+
+else:
+    print(filler +"\n No Active User File Specified\n" + filler)
 #d1cols = ['PassHash', 'Password']
 #df = pd.read_csv(passfile, sep=":|,", engine='python', error_bad_lines=False, names=d1cols)
 
@@ -124,6 +140,7 @@ Top25passwords = [ 'pass','123456', 'password', '123456789', '12345678', '12345'
 Seasons = ['winter','summer','fall','spring','autumn']
 ContainsSeason = []
 ContainsCommonPassword = []
+ContainsPwd = []
 #Array to contain if password has been pwned according to HaveIBeenPwned
 PwnedPasswords = []
 
@@ -135,6 +152,17 @@ tablesheet = workbook.add_worksheet('MostOccuringPasswords')
 writer.sheets['TableData'] = tablesheet
 rawdatasheet = workbook.add_worksheet('Raw_Data')
 writer.sheets['Raw_Data'] = rawdatasheet
+
+#Determine Actions based on if active user list provided
+if args.activeUsers:
+    activesheet = workbook.add_worksheet('ActiveUsers')
+    writer.sheets['ActiveUsers'] = activesheet
+    df_3.to_excel(writer,sheet_name='ActiveUsers',index=False,encoding='utf8')
+    status = 'ACTIVE'
+else:
+    status = ''
+
+
 
 
 
@@ -179,6 +207,11 @@ def magic():
         else:
             ContainsSeason.append(0)
 
+        if "password" in word.lower():
+            ContainsPwd.append(1)
+        else:
+            ContainsPwd.append(0)
+
     if checkPwn == 'Y':
         for word in tqdm(PasswordList):
             password = Password(word)
@@ -202,6 +235,7 @@ def new_Analysis(results):
     amtnumber = results['IsNumber?'].sum()
     amtspecial = results['HasSpecialChar?'].sum()
     amtSeasons = results['ContainsSeason'].sum()
+    amtpwds = results['ContainsPassword'].sum()
     if checkPwn == 'Y':
         pwdspwned = results['PasswordPwned?'].sum()
     else:
@@ -216,6 +250,7 @@ def new_Analysis(results):
     pctTooShort = (tooshort/pwdsRecovered)
     pctNumber = (amtnumber/pwdsRecovered)
     pctSpecialChar = (amtspecial/pwdsRecovered)
+    pctPwds = (amtpwds/pwdsRecovered)
     if checkPwn == 'Y':
         pctPwned = (pwdspwned/pwdsRecovered)
     else:
@@ -230,7 +265,9 @@ def new_Analysis(results):
     print('***** Analyzing *****')
     print('')
     time.sleep(stagger_time)
-    print('Total User Hashes Recovered: ' + str(totalhashes))
+    print('Total User Hashes Recovered: ' + str(allhashes))
+    if args.activeUsers:
+        print('Total ACTIVE User Hashes Recovered: ' + str(totalhashes))
     print("Amount of Passwords in Compliance: " + str(goodpwds))
     print("Amount of Passwords Missing a Requirement: " + str(missingrq))
     print("Amount of Passwords that are too short: " + str(tooshort))
@@ -284,11 +321,11 @@ def new_Analysis(results):
     worksheet.set_column('B:B',12)
     worksheet.set_column('C:C', 12)
     worksheet.write(0,0,'High Level Results',header_fmt)
-    worksheet.write(1,0,'Total User Accounts Returned',tag_fmt)
-    worksheet.write(2,0,'Total User Passwords Recovered (Cracked)',tag_fmt)
+    worksheet.write(1,0,'Total '+ status + 'User Accounts Returned',tag_fmt)
+    worksheet.write(2,0,'Total ' + status + 'User Passwords Recovered (Cracked)',tag_fmt)
     worksheet.write(3,0,'Compliance Results',header_fmt)
-    worksheet.write(4,0,'User Passwords In Compliance',tag_fmt)
-    worksheet.write(5,0,'User Passwords Out of Compliance',tag_fmt)
+    worksheet.write(4,0,status + 'User Passwords In Compliance',tag_fmt)
+    worksheet.write(5,0,status + 'User Passwords Out of Compliance',tag_fmt)
     worksheet.write(6,0,'Out of Compliance Analysis', sub_header_fmt)
     worksheet.write(7,0,'Number of Passwords Missing a Requirement',tag_fmt)
     worksheet.write(8,0,'Number of Passwords Too Short',tag_fmt)
@@ -303,6 +340,7 @@ def new_Analysis(results):
     worksheet.write(17,0,'Number of Passwords Containing Form of Top 25 Passwords',tag_fmt)
     worksheet.write(18,0,'Number of Passwords Containing Form of Company Name',tag_fmt)
     worksheet.write(19,0,'Number of Passwords Containing a Season', tag_fmt)
+    worksheet.write(20,0,'Number of Passwords Containing "Password"', tag_fmt)
 
     worksheet.write(0,1,'',header_fmt)
     worksheet.write(1,1, totalhashes,num_fmt)
@@ -327,6 +365,7 @@ def new_Analysis(results):
     worksheet.write(17,1, numtop25, num_fmt)
     worksheet.write(18,1, numco, num_fmt)
     worksheet.write(19,1, amtSeasons, num_fmt)
+    worksheet.write(20,1, amtpwds, num_fmt)
 
     worksheet.write(0,2, '% of Total', header_fmt2)
     worksheet.write(1,2, '100%', num_fmt)
@@ -351,6 +390,7 @@ def new_Analysis(results):
     worksheet.write(17,2, pctTop25, percent_fmt)
     worksheet.write(18,2, pctCoName, percent_fmt)
     worksheet.write(19,2, pctSeason, percent_fmt)
+    worksheet.write(20,2, pctPwds, percent_fmt)
 
 
 #function to pass data to dataframe and write to excel
@@ -367,6 +407,7 @@ def raw_Data():
                            'Compliance': ComplianceCount,
                            'Top25Password': ContainsCommonPassword,
                            'ContainsSeason': ContainsSeason,
+                           'ContainsPassword': ContainsPwd,
                            'PasswordPwned?': PwnedPasswords})
     else:
         df = pd.DataFrame({'PassHash':PasswordHash,
@@ -379,13 +420,21 @@ def raw_Data():
                            'ContainsCompany': ContainsCompany,
                            'Compliance': ComplianceCount,
                            'Top25Password': ContainsCommonPassword,
-                           'ContainsSeason': ContainsSeason})
+                           'ContainsSeason': ContainsSeason,
+                           'ContainsPassword': ContainsPwd})
 
     results = df.merge(df_2, on = 'PassHash', how='right')
-
+    new = results.User.str.split("\\", n=1, expand=True)
+    results["Username"] = new[1]
     results["Password"].fillna("Password Not Recovered", inplace=True)
-    new_Analysis(results)
-    results.to_excel(writer,sheet_name='Raw_Data',index=False,encoding='utf8')
+
+    if args.activeUsers:
+        newresults = results.merge(df_3, on = 'Username', how='right')
+        new_Analysis(newresults)
+        newresults.to_excel(writer,sheet_name='Raw_Data',index=False,encoding='utf8')
+    else:
+        new_Analysis(results)
+        results.to_excel(writer,sheet_name='Raw_Data',index=False,encoding='utf8')
 
 #function for mode 3
 def custom():
