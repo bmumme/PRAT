@@ -27,5 +27,8 @@ This script requires the two files as inputs
 - -o Name of the EXCEL file for final results
 - Note: You will be prompted to answer questions while the script is running about password requirements and analysis options. For example, you can query the HaveIBeenPwnded API to identify if that specific cleartext password has been assocaited with a break, indicating the password is likely to be in a password list used in brute force attacks.
 
+### Links:
+[Impacket / Secretsdump.py] (https://github.com/SecureAuthCorp/impacket)
+[Hashcat] (https://hashcat.net/hashcat/)
 
 
