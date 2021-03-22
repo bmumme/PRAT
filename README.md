@@ -25,6 +25,7 @@ This script requires the two files as inputs
 - -i TXT file of Hashcat output (.pot file)
 - -s TXT file of the secretsdump output
 - -o Name of the EXCEL file for final results
+- -a Optional: You can supply a CSV of active AD usernames and only results for active users will be returned
 - Note: You will be prompted to answer questions while the script is running about password requirements and analysis options. For example, you can query the HaveIBeenPwnded API to identify if that specific cleartext password has been assocaited with a break, indicating the password is likely to be in a password list used in brute force attacks.
 
 ### Links:
