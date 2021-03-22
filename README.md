@@ -16,7 +16,19 @@ This script requires the two files as inputs
 - TXT file of Hashcat output (.pot file)
 - TXT file of the secretsdump.py output
 
+### Requirements: 
 `python3.x`
+
+`pyfiglet`
+
+`pwnedapi`
+
+`pandas`
+
+`xlsxwriter`
+
+`tqdm`
+
 
 ### Instructions: 
 `python3 prat.py -m 2 -i hashcatoutput.txt -s secretsdumpoutput.txt -o nameofworkbook.xlsx`
