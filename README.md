@@ -41,6 +41,10 @@ tqdm
 - -a Optional: You can supply a CSV of active AD usernames and only results for active users will be returned
 - Note: You will be prompted to answer questions while the script is running about password requirements and analysis options. For example, you can query the HaveIBeenPwnded API to identify if that specific cleartext password has been assocaited with a breach, indicating the password is likely to be in a password list used in brute force attacks.
 
+### Dashboard:
+The following image is an example of the main dashboard returned. Other data is returned in the Excel workbook, please see the Samples folder for more info. 
+![DashboardExample](https://github.com/bmumme/PRAT/blob/ed7ddcefa3fb4e8ddec5fa3e6a11574438ad0808/Samples/Dashboard.png?raw=true)
+
 ### Links:
 [Impacket / Secretsdump.py](https://github.com/SecureAuthCorp/impacket)
 
