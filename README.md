@@ -7,7 +7,7 @@ Currently, PRAT is a script for a very specifi use-case - The analysis of "recov
 Utilizing DA credentials and secretsdump.py, remotely dump the domain password hashes. Next, leverage Hashcat to "recover" passwords. Take the Hashcat output and the dumped password hashes (secretsdump.py ouptut) and run PRAT.py. 
 
 ### Disclaimer:
-Ultimately, this tool relies on "recovered" passwords and does not obscure these passwords. Users and their **cleartext** passwords will be listed in the final Excel output. Also, this is only for sanctioned security testing. 
+Ultimately, this tool relies on "recovered" passwords and does not obscure these passwords. Users and their **cleartext** passwords will be listed in the final Excel output. Also, this tool is only for those who have permission to be snooping around Domain Controllers.
 
 ### Inputs:
 This script requires the two files as inputs
