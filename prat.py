@@ -89,7 +89,7 @@ print('The output will be stored in the following excel workbook located in the 
 
 d2cols = ['User', 'rid', 'HashType', 'PassHash', 'na1', 'na2', 'na3']
 d3cols = ['Username']
-df_2 = pd.read_csv(secretsDumpFile, sep=":|,", engine='python', error_bad_lines=False, names=d2cols, skipinitialspace=True)
+df_2 = pd.read_csv(secretsDumpFile, sep=":|,", engine='python', on_bad_lines='skip', names=d2cols, skipinitialspace=True)
 df_2 = df_2[pd.notnull(df_2['PassHash'])]
 df_2 = df_2[df_2.User.str.contains('\\\\')]
 allhashes = df_2['PassHash'].count()
@@ -98,12 +98,12 @@ allhashes = df_2['PassHash'].count()
 if args.activeUsers:
     print(filler + "\nFindings will only show Active Users\n" + filler)
     activeFile = args.activeUsers
-    df_3 = pd.read_csv(activeFile, sep=":|,", engine='python', error_bad_lines=False, names=d3cols, skipinitialspace=True)
+    df_3 = pd.read_csv(activeFile, sep=":|,", engine='python', on_bad_lines='skip', names=d3cols, skipinitialspace=True)
 
 else:
     print(filler +"\n No Active User File Specified\n" + filler)
 #d1cols = ['PassHash', 'Password']
-#df = pd.read_csv(passfile, sep=":|,", engine='python', error_bad_lines=False, names=d1cols)
+#df = pd.read_csv(passfile, sep=":|,", engine='python', on_bad_lines='skip', names=d1cols)
 
 #V-1.1 open txt file and transform it to include passwords that have a ',' and Other
 #special characters
@@ -118,7 +118,7 @@ df = df[pd.notnull(df['Password'])]
 
 
 
-regex = re.compile('[.,@_!#$%^&*()<>?/\|}{~:]')
+regex = re.compile(r'[.,@_!#$%^&*()<>?/\|}{~:]')
 
 Users = df_2['User']
 HashcatHashes = df_2['PassHash']
@@ -156,7 +156,7 @@ writer.sheets['Raw_Data'] = rawdatasheet
 if args.activeUsers:
     activesheet = workbook.add_worksheet('ActiveUsers')
     writer.sheets['ActiveUsers'] = activesheet
-    df_3.to_excel(writer,sheet_name='ActiveUsers',index=False,encoding='utf8')
+    df_3.to_excel(writer,sheet_name='ActiveUsers',index=False)
     status = 'ACTIVE '
 else:
     status = ''
@@ -279,7 +279,7 @@ def new_Analysis(results):
     newp = dupPwds.sort_values(axis=0,ascending=False)
     newnewp = newp.nlargest(20)
     printp = newp.nlargest(5)
-    newnewp.to_excel(writer,sheet_name='TableData',encoding='utf8',startrow=1)
+    newnewp.to_excel(writer,sheet_name='TableData',startrow=1)
 
     print('Top 5 Most Occuring Passwords:')
     print(printp)
@@ -425,15 +425,16 @@ def raw_Data():
     results = df.merge(df_2, on = 'PassHash', how='right')
     new = results.User.str.split("\\", n=1, expand=True)
     results["Username"] = new[1]
-    results["Password"].fillna("Password Not Recovered", inplace=True)
+    #results["Password"].fillna("Password Not Recovered", inplace=True)
+    results.fillna({"Password": "Password Not Recovered"}, inplace=True)
 
     if args.activeUsers:
         newresults = results.merge(df_3, on = 'Username', how='right')
         new_Analysis(newresults)
-        newresults.to_excel(writer,sheet_name='Raw_Data',index=False,encoding='utf8')
+        newresults.to_excel(writer,sheet_name='Raw_Data',index=False)
     else:
         new_Analysis(results)
-        results.to_excel(writer,sheet_name='Raw_Data',index=False,encoding='utf8')
+        results.to_excel(writer,sheet_name='Raw_Data',index=False)
 
 #function for mode 3
 def custom():
@@ -636,5 +637,5 @@ rawdatasheet.set_column('G:G', 10)
 rawdatasheet.set_column('H:H', 10)
 rawdatasheet.set_column('L:L', 20)
 
-writer.save()
+writer.close()
 print('\nDONE!\n')
