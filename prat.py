@@ -159,7 +159,7 @@ writer.sheets['Raw_Data'] = rawdatasheet
 if args.activeUsers:
     activesheet = workbook.add_worksheet('ActiveUsers')
     writer.sheets['ActiveUsers'] = activesheet
-    df_3.to_excel(writer,sheet_name='ActiveUsers',index=False, na_rep=0)
+    df_3.to_excel(writer,sheet_name='ActiveUsers',index=False)
     status = 'ACTIVE '
 else:
     status = ''
@@ -282,7 +282,7 @@ def new_Analysis(results):
     newp = dupPwds.sort_values(axis=0,ascending=False)
     newnewp = newp.nlargest(20)
     printp = newp.nlargest(5)
-    newnewp.to_excel(writer,sheet_name='TableData',startrow=1, na_rep=0)
+    newnewp.to_excel(writer,sheet_name='TableData',startrow=1)
 
     print('Top 5 Most Occuring Passwords:')
     print(printp)
@@ -434,10 +434,10 @@ def raw_Data():
     if args.activeUsers:
         newresults = results.merge(df_3, on = 'Username', how='right')
         new_Analysis(newresults)
-        newresults.to_excel(writer,sheet_name='Raw_Data',index=False, na_rep=0) 
+        newresults.to_excel(writer,sheet_name='Raw_Data',index=False) 
     else:
         new_Analysis(results)
-        results.to_excel(writer,sheet_name='Raw_Data',index=False, na_rep=0)
+        results.to_excel(writer,sheet_name='Raw_Data',index=False)
 
 #function for mode 3
 def custom():
