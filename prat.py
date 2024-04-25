@@ -6,8 +6,8 @@
 #        T.ool
 #
 #   Author: Bradley Mumme
-#   Current Version: 2.0
-#   Version Date: 03/22/21
+#   Current Version: 2.2
+#   Version Date: 04/22/24
 #
 #   Last Update: Added -a for active AD user correlation and additional password metrics
 #
@@ -43,7 +43,7 @@ custom_fig = Figlet(font='speed')
 print(custom_fig.renderText('P.R.A.T.'))
 print("  Title: P.assword R.ecovery A.nalysis T.ool")
 print("  Author: Bradley Mumme")
-print("  Version: 2.1 - April 2024")
+print("  Version: 2.2 - April 2024")
 print('')
 
 
