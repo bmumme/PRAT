@@ -32,6 +32,7 @@ import string
 import re
 import time
 import argparse
+import chardet
 from pyfiglet import Figlet
 from pwnedapi import Password
 from tqdm import tqdm
@@ -42,7 +43,7 @@ custom_fig = Figlet(font='speed')
 print(custom_fig.renderText('P.R.A.T.'))
 print("  Title: P.assword R.ecovery A.nalysis T.ool")
 print("  Author: Bradley Mumme")
-print("  Version: 2.0 - March 2021")
+print("  Version: 2.1 - April 2024")
 print('')
 
 
@@ -98,25 +99,27 @@ allhashes = df_2['PassHash'].count()
 if args.activeUsers:
     print(filler + "\nFindings will only show Active Users\n" + filler)
     activeFile = args.activeUsers
-    df_3 = pd.read_csv(activeFile, sep=":|,", engine='python', on_bad_lines='skip', names=d3cols, skipinitialspace=True)
+    df_3 = pd.read_csv(activeFile, sep=":|,",encoding='utf-8', engine='python', on_bad_lines='skip', names=d3cols, skipinitialspace=True)
 
 else:
     print(filler +"\n No Active User File Specified\n" + filler)
 #d1cols = ['PassHash', 'Password']
 #df = pd.read_csv(passfile, sep=":|,", engine='python', on_bad_lines='skip', names=d1cols)
 
-#V-1.1 open txt file and transform it to include passwords that have a ',' and Other
 #special characters
-with open(str(passfile.name)) as p:
+#V-2.1 determines encoding type
+rawdata = open(str(passfile.name),"rb").read()
+encodingType = chardet.detect(rawdata)['encoding']
+#V-1.1 open txt file and transform it to include passwords that have a ',' and Other
+with open(str(passfile.name),encoding=str(encodingType), errors='replace') as p:
     initList = p.readlines()
 newlist = [i.split('\n',1)[0] for i in initList]
 s = pd.Series(newlist)
 s = s.str.split(pat=':', expand=True,n=1)
 df = pd.DataFrame(s)
 df.columns = ['PassHash', 'Password']
+
 df = df[pd.notnull(df['Password'])]
-
-
 
 regex = re.compile(r'[.,@_!#$%^&*()<>?/\|}{~:]')
 
@@ -431,7 +434,7 @@ def raw_Data():
     if args.activeUsers:
         newresults = results.merge(df_3, on = 'Username', how='right')
         new_Analysis(newresults)
-        newresults.to_excel(writer,sheet_name='Raw_Data',index=False)
+        newresults.to_excel(writer,sheet_name='Raw_Data',index=False) 
     else:
         new_Analysis(results)
         results.to_excel(writer,sheet_name='Raw_Data',index=False)
