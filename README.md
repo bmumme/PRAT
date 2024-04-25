@@ -1,7 +1,7 @@
 # P.R.A.T.
 Password Recovery Analysis Tool
 
-Version 2.2 - Bradley Mumme - April 2022
+Version 2.2 - Bradley Mumme - April 2024
 Contributors: Christian Bohren
 
 ### Overview:
